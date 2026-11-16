@@ -1,0 +1,49 @@
+name: Unity CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+  pull_request:
+    branches:
+      - main
+      - dev
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-project:
+    name: Validate Project Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check Required Files and Directories
+        shell: bash
+        run: |
+          set -e
+
+          required_paths=(
+            "Assets"
+            "Documentation"
+            "README.md"
+            ".gitignore"
+          )
+
+          for path in "${required_paths[@]}"; do
+            if [[ ! -e "$path" ]]; then
+              echo "::error::Missing required path: $path"
+              exit 1
+            fi
+
+            echo "Verified: $path"
+          done
+
+          echo "Project structure validation completed successfully."
